@@ -1,0 +1,87 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+struct AVLNode {
+    string word, meaning;
+    AVLNode* left = nullptr;
+    AVLNode* right = nullptr;
+    AVLNode(string w, string m) : word(w), meaning(m) {}
+};
+
+class AVLTree {
+    AVLNode* root = nullptr;
+
+    int height(AVLNode* node) {
+        return node ? max(height(node->left), height(node->right)) + 1 : 0;
+    }
+
+    int balanceFactor(AVLNode* node) {
+        return height(node->left) - height(node->right);
+    }
+
+    AVLNode* rotateLeft(AVLNode* node) {
+        AVLNode* newRoot = node->right;
+        node->right = newRoot->left;
+        newRoot->left = node;
+        return newRoot;
+    }
+
+    AVLNode* rotateRight(AVLNode* node) {
+        AVLNode* newRoot = node->left;
+        node->left = newRoot->right;
+        newRoot->right = node;
+        return newRoot;
+    }
+
+    AVLNode* balance(AVLNode* node) {
+        int bf = balanceFactor(node);
+        if (bf > 1) return balanceFactor(node->left) >= 0 ? rotateRight(node) : rotateLeft(rotateRight(node));
+        if (bf < -1) return balanceFactor(node->right) <= 0 ? rotateLeft(node) : rotateRight(rotateLeft(node));
+        return node;
+    }
+
+    AVLNode* insert(AVLNode* node, string word, string meaning) {
+        if (!node) return new AVLNode(word, meaning);
+        if (word < node->word) node->left = insert(node->left, word, meaning);
+        else if (word > node->word) node->right = insert(node->right, word, meaning);
+        return balance(node);
+    }
+
+    void inorder(AVLNode* node) {
+        if (node) {
+            inorder(node->left);
+            cout << node->word << " : " << node->meaning << endl;
+            inorder(node->right);
+        }
+    }
+
+public:
+    void insert(string word, string meaning) {
+        root = insert(root, word, meaning);
+    }
+
+    void display() {
+        inorder(root);
+    }
+};
+
+int main() {
+    AVLTree tree;
+    int choice;
+    string word, meaning;
+
+    while (true) {
+        cout << "\n1. Insert Word\n2. Display Dictionary\n3. Exit\nEnter choice: ";
+        cin >> choice;
+        if (choice == 1) {
+            cout << "Enter word: "; cin >> word;
+            cout << "Enter meaning: "; cin.ignore(); getline(cin, meaning);
+            tree.insert(word, meaning);
+        } else if (choice == 2) tree.display();
+        else break;
+    }
+
+    return 0;
+}
+

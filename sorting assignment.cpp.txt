@@ -1,0 +1,86 @@
+#include <iostream>
+using namespace std;
+
+struct User {
+    long long mob;
+    string name;
+    float bill;
+};
+
+void input(User u[], int n) {
+    for (int i = 0; i < n; i++) {
+        cout << "Enter MobileNo, Name, Bill for user " << i + 1 << ": ";
+        cin >> u[i].mob >> u[i].name >> u[i].bill;
+    }
+}
+
+void show(User u[], int n) {
+    cout << "\nSorted Users (by MobileNo Descending):\n";
+    for (int i = 0; i < n; i++)
+        cout << u[i].mob << " " << u[i].name << " " << u[i].bill << endl;
+}
+
+void quick(User u[], int l, int h) {
+    if (l >= h) return;
+    long long p = u[h].mob;
+    int i = l - 1;
+    for (int j = l; j < h; j++)
+        if (u[j].mob > p) swap(u[++i], u[j]);
+    swap(u[i + 1], u[h]);
+    quick(u, l, i);
+    quick(u, i + 2, h);
+}
+
+int lin(User u[], int n, long long key) {
+    for (int i = 0; i < n; i++)
+        if (u[i].mob == key) return i;
+    return -1;
+}
+
+int bin(User u[], int n, long long key) {
+    int l = 0, r = n - 1;
+    while (l <= r) {
+        int m = (l + r) / 2;
+        if (u[m].mob == key) return m;
+        if (u[m].mob < key) r = m - 1;
+        else l = m + 1;
+    }
+    return -1;
+}
+
+int rbin(User u[], int l, int r, long long key) {
+    if (l > r) return -1;
+    int m = (l + r) / 2;
+    if (u[m].mob == key) return m;
+    if (u[m].mob < key) return rbin(u, l, m - 1, key);
+    return rbin(u, m + 1, r, key);
+}
+
+int main() {
+    int n; long long key;
+    User u[100];
+
+    cout << "Enter number of users: ";
+    cin >> n;
+
+    input(u, n);
+    quick(u, 0, n - 1);
+    show(u, n);
+
+    cout << "\nEnter MobileNo to search: ";
+    cin >> key;
+
+    int i = lin(u, n, key);
+    if (i != -1) cout << "Linear Search: " << u[i].name << " " << u[i].bill << endl;
+    else cout << "Linear Search: Not Found\n";
+
+    i = rbin(u, 0, n - 1, key);
+    if (i != -1) cout << "Recursive Binary Search: " << u[i].name << " " << u[i].bill << endl;
+    else cout << "Recursive Binary Search: Not Found\n";
+
+    i = bin(u, n, key);
+    if (i != -1) cout << "Binary Search: " << u[i].name << " " << u[i].bill << endl;
+    else cout << "Binary Search: Not Found\n";
+
+    return 0;
+}

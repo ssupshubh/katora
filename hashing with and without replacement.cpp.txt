@@ -1,0 +1,61 @@
+#include <iostream>
+using namespace std;
+#define MAX 10
+
+class Hash {
+    int t[MAX];
+public:
+    Hash() { for (int &i : t) i = -1; }
+
+    void disp() {
+        for (int i = 0; i < MAX; i++) 
+            cout << i << ": " << (t[i] == -1 ? "Empty" : to_string(t[i])) << '\n';
+    }
+
+    int search(int k) {
+        int i = k % MAX, s = i;
+        do {
+            if (t[i] == k) return i;
+            i = (i + 1) % MAX;
+        } while (t[i] != -1 && i != s);
+        return -1;
+    }
+
+    void mod(int oldK, int newK) {
+        int i = search(oldK);
+        if (i != -1) t[i] = newK;
+        else cout << "Not found\n";
+    }
+
+    void insertNoRep(int k) {
+        int i = k % MAX, s = i;
+        do {
+            if (t[i] == -1) { t[i] = k; return; }
+            i = (i + 1) % MAX;
+        } while (i != s);
+        cout << "Full\n";
+    }
+
+    void insertRep(int k) {
+        int i = k % MAX;
+        if (t[i] == -1) t[i] = k;
+        else if (t[i] % MAX != i) {
+            int temp = t[i]; t[i] = k; insertNoRep(temp);
+        } else insertNoRep(k);
+    }
+};
+
+int main() {
+    Hash h;
+    int ch, k, n, m;
+    cout << "1.No Replacement 2.With Replacement: "; cin >> m;
+    while (1) {
+        cout << "\n1.Ins 2.Disp 3.Srch 4.Mod 5.Exit: "; cin >> ch;
+        if (ch == 5) break;
+        if (ch == 1) { cout << "Key: "; cin >> k; m == 1 ? h.insertNoRep(k) : h.insertRep(k); }
+        else if (ch == 2) h.disp();
+        else if (ch == 3) { cout << "Key: "; cin >> k; cout << (h.search(k) != -1 ? "Found\n" : "Not Found\n"); }
+        else if (ch == 4) { cout << "Old: "; cin >> k; cout << "New: "; cin >> n; h.mod(k, n); }
+    }
+    return 0;
+}
